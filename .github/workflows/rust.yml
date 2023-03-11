@@ -152,7 +152,11 @@ jobs:
           key: ${{ runner.os }}-mirai-${{ hashFiles('**/Cargo.lock') }}
 
       - run: |
-          cargo build --release --path ./checker --no-default-features
+          cargo build --release -p checker --no-default-features
+
+      - name: ls
+        run: |
+          ls -l target/release
 
       - name: Archive
         uses: actions/upload-artifact@v3
