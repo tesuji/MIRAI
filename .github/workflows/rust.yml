@@ -152,19 +152,21 @@ jobs:
           key: ${{ runner.os }}-mirai-${{ hashFiles('**/Cargo.lock') }}
 
       - run: |
-          cargo build --release -p checker --no-default-features
+          cd checker
+          cargo build --release--no-default-features
 
       - name: ls
         run: |
           ls -l target/release
+          ls -l checker/target/release
 
       - name: Archive
         uses: actions/upload-artifact@v3
         with:
           name: mirai-${{ runner.os }}
           path: |
-            target/release/mirai
-            target/release/cargo-mirai
+            checker/target/release/mirai
+            checker/target/release/cargo-mirai
 
   mirai_on_mirai_windows:
     if: false
