@@ -3,6 +3,8 @@ name: Release artifacts
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 env:
   CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
@@ -90,6 +92,7 @@ jobs:
 
   mirai_on_mirai_macos:
     runs-on: macos-latest
+    if: false
 
     steps:
       - uses: actions/checkout@v3
@@ -118,9 +121,11 @@ jobs:
           command: install
           args: --force --path ./checker
 
-      - name: Run MIRAI on MIRAI
-        run: |
-          cargo mirai
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-coverage-report
+          path: output/test/code-coverage.html
 
   mirai_on_mirai_ubuntu:
     runs-on: ubuntu-latest
@@ -146,15 +151,19 @@ jobs:
             target/
           key: ${{ runner.os }}-mirai-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Install MIRAI
-        run: |
-          cargo install --force --path ./checker
+      - run: |
+          cargo build --release --path ./checker --no-default-features
 
-      - name: Run MIRAI on MIRAI
-        run: |
-          cargo mirai --no-default-features
+      - name: Archive
+        uses: actions/upload-artifact@v3
+        with:
+          name: mirai-${{ runner.os }}
+          path: |
+            target/release/mirai
+            target/release/cargo-mirai
 
   mirai_on_mirai_windows:
+    if: false
     runs-on: windows-latest
 
     steps:
