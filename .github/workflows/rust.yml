@@ -158,15 +158,14 @@ jobs:
       - name: ls
         run: |
           ls -l target/release
-          ls -l checker/target/release
 
       - name: Archive
         uses: actions/upload-artifact@v3
         with:
           name: mirai-${{ runner.os }}
           path: |
-            checker/target/release/mirai
-            checker/target/release/cargo-mirai
+            target/release/mirai
+            target/release/cargo-mirai
 
   mirai_on_mirai_windows:
     if: false
