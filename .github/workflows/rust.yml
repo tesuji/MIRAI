@@ -1,14 +1,13 @@
-name: Continuous Integration
+name: Release artifacts
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
     branches: [ main ]
 
 env:
   CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
   CARGO_INCREMENTAL: 0
+  NIGHTLY_TOOLCHAIN: nightly-2023-03-08
 
 jobs:
   clippy:
@@ -20,7 +19,7 @@ jobs:
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: nightly-2022-08-08
+          toolchain: ${{ env.NIGHTLY_TOOLCHAIN }}
           profile: minimal
           components: clippy, rustc-dev, llvm-tools-preview
 
@@ -52,6 +51,9 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           submodules: recursive
+          toolchain: ${{ env.NIGHTLY_TOOLCHAIN }}
+          profile: minimal
+          components: rustc-dev, llvm-tools-preview
 
       - name: vcpkg build z3
         uses: johnwason/vcpkg-action@v5
@@ -95,7 +97,7 @@ jobs:
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: nightly-2022-08-08
+          toolchain: ${{ env.NIGHTLY_TOOLCHAIN }}
           profile: minimal
           components: rustc-dev, llvm-tools-preview
 
@@ -129,7 +131,7 @@ jobs:
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: nightly-2022-08-08
+          toolchain: ${{ env.NIGHTLY_TOOLCHAIN }}
           profile: minimal
           components: rustc-dev, llvm-tools-preview
 
@@ -161,7 +163,7 @@ jobs:
       - name: Install toolchain
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: nightly-2022-08-08
+          toolchain: ${{ env.NIGHTLY_TOOLCHAIN }}
           profile: minimal
           components: rustc-dev, llvm-tools-preview
 
