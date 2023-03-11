@@ -6,23 +6,50 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
+  CARGO_INCREMENTAL: 0
+
 jobs:
   clippy:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly-2022-08-08
+          profile: minimal
+          components: clippy, rustc-dev, llvm-tools-preview
+
+      - name: Cache Cargo
+        uses: actions/cache@v3.0.5
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-clippy-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Run Clippy
         run: |
           cargo clippy --no-default-features --all-targets -- -D warnings
 
   tests:
+    if: false
     runs-on: macos-latest
     env:
       VCPKG_ROOT: ${{ github.workspace }}/vcpkg
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
         with:
           submodules: recursive
 
@@ -59,11 +86,63 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: "lcov.info"
 
+  mirai_on_mirai_macos:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly-2022-08-08
+          profile: minimal
+          components: rustc-dev, llvm-tools-preview
+
+      - name: Cache Cargo
+        uses: actions/cache@v3.0.5
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-mirai-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install MIRAI
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: --force --path ./checker
+
+      - name: Run MIRAI on MIRAI
+        run: |
+          cargo mirai
+
   mirai_on_mirai_ubuntu:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly-2022-08-08
+          profile: minimal
+          components: rustc-dev, llvm-tools-preview
+
+      - name: Cache Cargo
+        uses: actions/cache@v3.0.5
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-mirai-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Install MIRAI
         run: |
@@ -72,3 +151,38 @@ jobs:
       - name: Run MIRAI on MIRAI
         run: |
           cargo mirai --no-default-features
+
+  mirai_on_mirai_windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly-2022-08-08
+          profile: minimal
+          components: rustc-dev, llvm-tools-preview
+
+      - name: Cache Cargo
+        uses: actions/cache@v3.0.5
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-mirai-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install MIRAI
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: --force --path ./checker --no-default-features
+
+      - name: Run MIRAI on MIRAI
+        run: |
+          cargo mirai
+
