@@ -122,7 +122,7 @@ jobs:
           args: --force --path ./checker
 
       - name: Archive code coverage results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: code-coverage-report
           path: output/test/code-coverage.html
@@ -160,7 +160,7 @@ jobs:
           ls -l target/release
 
       - name: Archive
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: mirai-${{ runner.os }}
           path: |
