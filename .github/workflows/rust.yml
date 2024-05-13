@@ -26,7 +26,7 @@ jobs:
           components: clippy, rustc-dev, llvm-tools-preview
 
       - name: Cache Cargo
-        uses: actions/cache@v3.0.5
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin/
@@ -105,7 +105,7 @@ jobs:
           components: rustc-dev, llvm-tools-preview
 
       - name: Cache Cargo
-        uses: actions/cache@v3.0.5
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin/
@@ -141,7 +141,7 @@ jobs:
           components: rustc-dev, llvm-tools-preview
 
       - name: Cache Cargo
-        uses: actions/cache@v3.0.5
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin/
@@ -168,7 +168,6 @@ jobs:
             target/release/cargo-mirai
 
   mirai_on_mirai_windows:
-    if: false
     runs-on: windows-latest
 
     steps:
@@ -182,7 +181,7 @@ jobs:
           components: rustc-dev, llvm-tools-preview
 
       - name: Cache Cargo
-        uses: actions/cache@v3.0.5
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/bin/
