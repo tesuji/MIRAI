@@ -153,7 +153,7 @@ jobs:
 
       - run: |
           cd checker
-          cargo build --release--no-default-features
+          cargo build --release --no-default-features
 
       - name: ls
         run: |
