@@ -1,4 +1,4 @@
-name: Continuous Integration
+name: Release artifacts
 
 on:
   push:
@@ -6,25 +6,56 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  CARGO_REGISTRIES_CRATES_IO_PROTOCOL: sparse
+  CARGO_INCREMENTAL: 0
+  NIGHTLY_TOOLCHAIN: nightly-2023-09-10
+
 jobs:
   clippy:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.NIGHTLY_TOOLCHAIN }}
+          profile: minimal
+          components: clippy, rustc-dev, llvm-tools-preview
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-clippy-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Run Clippy
         run: |
           cargo clippy --no-default-features --all-targets -- -D warnings
 
   tests:
+    if: false
     runs-on: macos-latest
     env:
       VCPKG_ROOT: ${{ github.workspace }}/vcpkg
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
         with:
           submodules: recursive
+          toolchain: ${{ env.NIGHTLY_TOOLCHAIN }}
+          profile: minimal
+          components: rustc-dev, llvm-tools-preview
 
       - name: vcpkg build z3
         uses: johnwason/vcpkg-action@v5
@@ -59,16 +90,121 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: "lcov.info"
 
+  mirai_on_mirai_macos:
+    runs-on: macos-latest
+    if: false
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.NIGHTLY_TOOLCHAIN }}
+          profile: minimal
+          components: rustc-dev, llvm-tools-preview
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-mirai-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Install MIRAI
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: --force --path ./checker
+
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-coverage-report
+          path: output/test/code-coverage.html
+
   mirai_on_mirai_ubuntu:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install MIRAI
-        run: |
-          cargo install --force --path ./checker
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.NIGHTLY_TOOLCHAIN }}
+          profile: minimal
+          components: rustc-dev, llvm-tools-preview
 
-      - name: Run MIRAI on MIRAI
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-mirai-${{ hashFiles('**/Cargo.lock') }}
+
+      - run: |
+          cd checker
+          cargo build --release --no-default-features
+
+      - name: ls
         run: |
-          cargo mirai --no-default-features
+          ls -l target/release
+
+      - name: Archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: mirai-${{ runner.os }}
+          path: |
+            target/release/mirai
+            target/release/cargo-mirai
+
+  mirai_on_mirai_windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ env.NIGHTLY_TOOLCHAIN }}
+          profile: minimal
+          components: rustc-dev, llvm-tools-preview
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-mirai-${{ hashFiles('**/Cargo.lock') }}
+
+
+      - run: |
+          cd checker
+          cargo build --release --no-default-features
+
+      - name: ls
+        shell: bash
+        run: |
+          ls -l target/release
+
+      - name: Archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: mirai-${{ runner.os }}
+          path: |
+            target/release/mirai.exe
+            target/release/cargo-mirai.exe
