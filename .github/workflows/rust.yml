@@ -191,13 +191,20 @@ jobs:
             target/
           key: ${{ runner.os }}-mirai-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Install MIRAI
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: --force --path ./checker --no-default-features
 
-      - name: Run MIRAI on MIRAI
+      - run: |
+          cd checker
+          cargo build --release --no-default-features
+
+      - name: ls
+        shell: bash
         run: |
-          cargo mirai
+          ls -l target/release
 
+      - name: Archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: mirai-${{ runner.os }}
+          path: |
+            target/release/mirai.exe
+            target/release/cargo-mirai.exe
